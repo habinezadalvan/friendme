@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import helmet from 'helmet';
-
+import routes from './routes/index.js';
 
 
 const app = express();
@@ -28,3 +28,5 @@ const connectDb = async () => {
 };
 
 connectDb();
+
+app.use('/api', routes);
