@@ -49,11 +49,30 @@ const userSchama = new mongoose.Schema({
 },
 {timestamps: true});
 
+// hash password
 
 userSchama.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
 })
+
+// login method
+
+userSchama.statics.login = async function (...args) {
+    const {email, username, password} = args[0];
+  
+    try{
+        const user = await this.findOne({$or: [{email}, {username}]});
+
+    if(!user) throw Error('Incorrect email, username, or password.');
+    const comparePasswords = await bcrypt.compare(password, user.password);
+    if(!comparePasswords) throw Error('Incorrect email, username, or password.');
+    return user;
+    }catch(err){
+     
+        throw Error('Incorrect email, username, or password.');
+    }
+}
 
 export default mongoose.model('User', userSchama);
