@@ -18,7 +18,7 @@ import {createToken} from '../helpers/createToken.js'
         });
 
         if(user){
-            const token = createToken(user, maxAge);
+            const token = await createToken(user, maxAge);
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
             return res.status(201).json({user});
         }
@@ -42,11 +42,11 @@ import {createToken} from '../helpers/createToken.js'
 
         try{
             const user = await User.login(userCridentials);
-            const token = createToken(user, maxAge);
+            const token = await createToken(user, maxAge);
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
             return res.status(200).json({user});
         }catch(err){
 
-           return res.status(400).json({loginErrorMessage: err.massage});
+           return res.status(400).json({loginErrorMessage: err.message});
         }
     }
