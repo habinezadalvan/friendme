@@ -11,7 +11,7 @@ export const updateUser = async (req, res) => {
         req.body.password = await hashPassword(password);
     };
    
-    const user = await User.findByIdAndUpdate(id, {$set:req.body});
+    const user = await User.findByIdAndUpdate(id, {$set:req.body}, {new: true});
 
     return res.status(200).json(user);
 
