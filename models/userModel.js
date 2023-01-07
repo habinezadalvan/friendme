@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import validator from 'validator';
-import bcrypt from 'bcrypt';
+import {hashPassword, comparePassword} from '../utils/passwordUtils.js';
 
 
 const userSchama = new mongoose.Schema({
@@ -44,7 +44,23 @@ const userSchama = new mongoose.Schema({
     isAdim: {
         type: Boolean,
         default: false
-    }
+    },
+    description: {
+        type: String,
+        max: 50
+    },
+    city: {
+        type: String,
+        max: 50
+    },
+    from: {
+        type: String,
+        max: 50
+    },
+    relationship: {
+        type: Number,
+        enum: [1,2,3]
+    },
 
 },
 {timestamps: true});
@@ -52,8 +68,7 @@ const userSchama = new mongoose.Schema({
 // hash password
 
 userSchama.pre('save', async function (next) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await hashPassword(this.password);
     next();
 })
 
@@ -66,7 +81,7 @@ userSchama.statics.login = async function (...args) {
         const user = await this.findOne({$or: [{email}, {username}]});
 
     if(!user) throw Error('Incorrect email, username, or password.');
-    const comparePasswords = await bcrypt.compare(password, user.password);
+    const comparePasswords = await comparePassword(password, user.password);
     if(!comparePasswords) throw Error('Incorrect email, username, or password.');
     return user;
     }catch(err){
