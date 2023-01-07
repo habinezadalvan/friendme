@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import routes from './routes/index.js';
 
 
@@ -13,6 +14,7 @@ dotenv.config();
 app.use(express.json());
 app.use(morgan('common'));
 app.use(helmet());
+app.use(cookieParser());
 
 
 // Connecting mongo database

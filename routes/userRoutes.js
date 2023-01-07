@@ -1,9 +1,14 @@
 import {Router} from 'express';
-import {signUp, login} from '../controllers/userControllers.js';
- 
- const router = Router();
+import {updateUser} from '../controllers/userControllers.js';
+import {userAuth} from '../middlewares/authMiddleware.js'
 
- router.post('/signup', signUp);
- router.post('/login', login);
+const router = Router();
 
- export default router;
+// update a user
+router.put('/:id',userAuth, updateUser);
+// delete a user
+// get a user
+// follow a user
+// unfollow a user
+
+export default router;

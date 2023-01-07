@@ -1,52 +1,24 @@
-import validator from 'validator';
-import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
-import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
-import {createToken} from '../helpers/createToken.js'
+import {hashPassword} from '../utils/passwordUtils.js';
+import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js'
 
-
-    const maxAge = 2 * 24 * 60 * 60;
-
- export const signUp = async(req, res) =>{
-        const {username, email, password} = req.body;
-
-       try{
-        const user = await User.create({
-            username: username.replace(/\s/g, '').trim(),
-            email,
-            password,
-        });
-
-        if(user){
-            const token = createToken(user, maxAge);
-            res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
-            return res.status(201).json({user});
-        }
-
-       }catch(error) {
-       
-        const errors = databaseErrorHandlingFunction(error);
-        return res.status(400).json(errors);
-       }
+export const updateUser = async (req, res) => {
+    const {id} = req.params;
+    const {password} = req.body;
+   try{
+    if(req.userId !== id) return res.status(401).json({message: `You can only update your account.`});
+    if(password) {
+        req.body.password = await hashPassword(password);
     };
+   
+    const user = await User.findByIdAndUpdate(id, {$set:req.body});
 
-    export const login = async (req, res) => {
-        const {password, username} = req.body;
-        const userCridentials = {
-            email: '',
-            username: '',
-            password
-        };
+    return res.status(200).json(user);
 
-        validator.isEmail(username) ? userCridentials.email = username : userCridentials.username = username;
+   }catch(err) {
+    const errors = databaseErrorHandlingFunction(err);
 
-        try{
-            const user = await User.login(userCridentials);
-            const token = createToken(user, maxAge);
-            res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
-            return res.status(200).json({user});
-        }catch(err){
+    return res.status(400).json(errors);
+   }
 
-           return res.status(400).json({loginErrorMessage: err.massage});
-        }
-    }
+}
