@@ -1,4 +1,5 @@
 import validator from 'validator';
+import moment from 'moment';
 import User from '../models/userModel.js';
 import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
 import {createToken} from '../helpers/createToken.js'
@@ -7,13 +8,20 @@ import {createToken} from '../helpers/createToken.js'
     const maxAge = 2 * 24 * 60 * 60;
 
  export const signUp = async(req, res) =>{
-        const {username, email, password} = req.body;
+        const {username, email, password, dateOfBirth} = req.body;
 
+        const userDateOfBirth = new Date(dateOfBirth);
+        const todayDate = moment(Date.now());
+        const userAge = todayDate.diff(userDateOfBirth, 'years', true).toFixed(1);
+
+      
        try{
         const user = await User.create({
             username: username.replace(/\s/g, '').trim(),
             email,
             password,
+            dateOfBirth: moment(dateOfBirth),
+            age: userAge,
         });
 
         if(user){

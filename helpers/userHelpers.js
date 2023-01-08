@@ -3,6 +3,8 @@ export const databaseErrorHandlingFunction = (error) => {
         username :'',
         email: '',
         password: '',
+        dateOfBirth: '',
+        age: ''
     };
 
     if(error.message.includes('User validation failed:')){

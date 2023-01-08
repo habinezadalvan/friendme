@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import validator from 'validator';
 import {hashPassword, comparePassword} from '../utils/passwordUtils.js';
 
@@ -16,6 +16,7 @@ const userSchama = new mongoose.Schema({
         type: String,
         unique: true,
         required : [true, 'Email is required'],
+        max : [50, 'Maximum email length is 50 characters'],
         validate : [validator.isEmail, 'Please enter a valid email'],
         lowercase: true
     },
@@ -24,6 +25,14 @@ const userSchama = new mongoose.Schema({
         unique: true,
         required : [true, 'Password is required'],
         validate: [validator.isStrongPassword, 'The password should be 8 characters long, with at least 1 small and capital letters, and 1 symbol.']
+    },
+    dateOfBirth: {
+        type: Date,
+        required: [true, 'Date of birth is required'],
+    },
+    age: {
+        type: Number,
+        min: [18, 'Sorry, You can not create an account because you are under age. Mininum age is 18'],
     },
     profilePicture : {
         type: String,
