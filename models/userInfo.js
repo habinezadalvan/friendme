@@ -4,43 +4,48 @@ const userInfo = new Schema({
     userId : {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
     },
-    fistName: {
+    firstName: {
         type: String,
-        default: ''
+        maxlength : [20, 'Maximum city length is 20 characters'],
+        default: '',
     },
     lastName: {
         type: String,
+        maxlength : [20, 'Maximum city length is 20 characters'],
         default: ''
     },
     currentAddress: {
         city: {
             type: String,
-            max : [20, 'Maximum city length is 20 characters'],
+            maxlength : [20, 'Maximum city length is 20 characters'],
+            default: '',
         },
         country: {
             type: String,
-            max : [20, 'Maximum city length is 20 characters'],
+            maxlength : [20, 'Maximum city length is 20 characters'],
+            default: '',
         }
     },
-    origin: {
+    originAddress: {
         city: {
             type: String,
-            max : [20, 'Maximum city length is 20 characters'],
+            maxlength : [20, 'Maximum city length is 20 characters'],
+            default: '',
         },
         country: {
             type: String,
-            max : [20, 'Maximum city length is 20 characters'],
+            maxlength : [20, 'Maximum city length is 20 characters'],
+            default: '',
         }
-    }
+    },
+    relationship: {
+        type: Number,
+        enum: [1,2,3]
+    },
 }, {
     timestamps: true
 });
 
-userInfo.virtual('fullName').get(function() {
-    return `${this.firstName} ${this.lastName}`;
-});
 
-
-export default new model('UserInfo');
+export default model('Info', userInfo);
