@@ -1,5 +1,7 @@
 import validator from 'validator';
+import moment from 'moment';
 import User from '../models/userModel.js';
+import Info from '../models/userInfo.js';
 import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
 import {createToken} from '../helpers/createToken.js'
 
@@ -7,23 +9,30 @@ import {createToken} from '../helpers/createToken.js'
     const maxAge = 2 * 24 * 60 * 60;
 
  export const signUp = async(req, res) =>{
-        const {username, email, password} = req.body;
+        const {username, email, password, dateOfBirth} = req.body;
 
+        const userDateOfBirth = new Date(dateOfBirth);
+        const todayDate = moment(Date.now());
+        const userAge = todayDate.diff(userDateOfBirth, 'years', true).toFixed(1);
+
+      
        try{
         const user = await User.create({
-            username: username.replace(/\s/g, '').trim(),
+            username,
             email,
             password,
+            dateOfBirth: moment(dateOfBirth),
+            age: userAge,
         });
 
         if(user){
             const token = await createToken(user, maxAge);
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
+            await Info.create({userId: user._id});
             return res.status(201).json({user});
         }
 
        }catch(error) {
-       
         const errors = databaseErrorHandlingFunction(error);
         return res.status(400).json(errors);
        }
@@ -45,11 +54,7 @@ import {createToken} from '../helpers/createToken.js'
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
             return res.status(200).json({user});
         }catch(err){
-
            return res.status(400).json({loginErrorMessage: err.massage});
         }
     };
 
-    export const updateUser = (req, res) => {
-        
-    }
