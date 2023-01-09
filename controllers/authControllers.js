@@ -1,8 +1,8 @@
 import validator from 'validator';
 import moment from 'moment';
 import User from '../models/userModel.js';
-import Info from '../models/userInfo.js';
-import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
+import Info from '../models/userInfoModel.js';
+import {databaseErrorHandlingFunction} from '../helpers/dbErrorsHandlerHelper.js';
 import {createToken} from '../helpers/createToken.js'
 
 
