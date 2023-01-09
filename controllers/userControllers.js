@@ -8,7 +8,8 @@ import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
 
 export const updateUser = async (req, res) => {
     const {id} = req.params;
-    const {password, dateOfBirth, age} = req.body;
+    const {password, dateOfBirth} = req.body;
+    
    try{
     if(req.userId !== id) return res.status(401).json({message: `You can only update your account.`});
     if(password) {
@@ -35,7 +36,7 @@ export const updateUserInfo = async (req, res) => {
 
     const {id} = req.params;
     try{
-        const userInfo = await Info.where('_id').equals(id);
+        const userInfo = await Info.where('_id').equals(id.toString());
     
         if(!userInfo[0]) return res.status(404).json({message: 'User information not found.'});
         if(req.userId !== userInfo[0].userId.toString()) return res.status(401).json({message: `You're not authorized to update these information`});
@@ -64,5 +65,17 @@ export const deleterUser = async(req, res) => {
       return res.status(200).json({message: 'The account was successfully deleted, you can create a new one at any time, see you.'})
     }catch(err){
         return res.status(500).json({error: 'Sorry, there is a server error.'})
+    }
+};
+
+export const getUser = async (req, res) => {
+    const {id} = req.params;
+    try{
+        const user = await User.findById(id);
+      if (!user) return res.status(404).json({message: 'Sorry, account not found.'});
+      const {password, ...rest} = user._doc;
+      return res.status(200).json(rest);
+    }catch(err){
+        return res.status(500).json({error: 'Sorry, there is server error'});
     }
 }
