@@ -4,6 +4,7 @@ import Info from '../models/userInfoModel.js';
 
 import {hashPassword} from '../utils/passwordUtils.js';
 import {databaseErrorHandlingFunction} from '../helpers/dbErrorsHandlerHelper.js';
+import {_404_Message, serverErrorMessage, forbidenMessage} from '../utils/responseMessagesUtils.js';
 
 
 export const updateUser = async (req, res) => {
@@ -11,7 +12,7 @@ export const updateUser = async (req, res) => {
     const {password, dateOfBirth} = req.body;
     
    try{
-    if(req.userId !== id) return res.status(401).json({message: `You can only update your account.`});
+    if(req.userId !== id) return res.status(401).json({message: forbidenMessage('update', 'account')});
     if(password) {
         req.body.password = await hashPassword(password);
     };
@@ -38,8 +39,8 @@ export const updateUserInfo = async (req, res) => {
     try{
         const userInfo = await Info.where('_id').equals(id.toString());
     
-        if(!userInfo[0]) return res.status(404).json({message: 'User information not found.'});
-        if(req.userId !== userInfo[0].userId.toString()) return res.status(401).json({message: `You're not authorized to update these information`});
+        if(!userInfo[0]) return res.status(404).json({message: _404_Message('user information')});
+        if(req.userId !== userInfo[0].userId.toString()) return res.status(403).json({message: forbidenMessage('update', 'information')});
         const updatedInfo = await Info.findByIdAndUpdate(id, {$set: req.body}, {new: true, runValidators: true});
         return res.status(200).json(updatedInfo);
     }catch(err){
@@ -53,8 +54,8 @@ export const deleterUser = async(req, res) => {
 
     try{
       const user = await User.findById(id);
-      if (!user) return res.status(404).json({message: 'Sorry, account not found.'});
-      if(req.userId !== user._id.toString()) return res.status(401).json({message: 'You can only delete your own account.'});
+      if (!user) return res.status(404).json({message: _404_Message('account')});
+      if(req.userId !== user._id.toString()) return res.status(401).json({message: forbidenMessage('delete', 'account')});
      await User.findByIdAndDelete(id, async (err) => {
         if(!err){
           return  await Info.deleteOne({userId: id});
@@ -64,7 +65,7 @@ export const deleterUser = async(req, res) => {
      res.cookie('jwt', '');
       return res.status(200).json({message: 'The account was successfully deleted, you can create a new one at any time, see you.'})
     }catch(err){
-        return res.status(500).json({error: 'Sorry, there is a server error.'})
+        return res.status(500).json({error: serverErrorMessage})
     }
 };
 
@@ -72,11 +73,11 @@ export const getUser = async (req, res) => {
     const {id} = req.params;
     try{
         const user = await User.findById(id);
-      if (!user) return res.status(404).json({message: 'Sorry, account not found.'});
+      if (!user) return res.status(404).json({message: _404_Message('account')});
       const {password, ...rest} = user._doc;
       return res.status(200).json(rest);
     }catch(err){
-        return res.status(500).json({error: 'Sorry, there is server error'});
+        return res.status(500).json({error: serverErrorMessage});
     }
 };
 
@@ -87,7 +88,7 @@ export const followUser = async (req, res) => {
     try{
         const user = await User.findById(userToFollowId);
         const currentUser = await User.findById(req.userId);
-        if(!user || !currentUser ) return res.status(404).json({message: `Sorry, user not found.`})
+        if(!user || !currentUser ) return res.status(404).json({message: _404_Message('user')})
         if(!user.followers.includes(req.userId)){
             await user.updateOne({$push: {followers: req.userId}});
             await currentUser.updateOne({$push: {followings: userToFollowId}});
@@ -96,7 +97,7 @@ export const followUser = async (req, res) => {
             return res.status(403).json({message: `You have already followed this user`});
         }
     }catch(err){
-        return res.status(500).json({error: 'Sorry, there is a server error'});
+        return res.status(500).json({error: serverErrorMessage});
     }
    
 };
@@ -108,7 +109,7 @@ export const unfollowUser = async (req, res) => {
     try{
         const user = await User.findById(userToUnfollowId);
         const currentUser = await User.findById(req.userId);
-        if(!user || !currentUser ) return res.status(404).json({message: `Sorry, user not found.`})
+        if(!user || !currentUser ) return res.status(404).json({message: _404_Message('user')})
         if(user.followers.includes(req.userId)){
             await user.updateOne({$pull: {followers: req.userId}});
             await currentUser.updateOne({$pull: {followings: userToUnfollowId}});
@@ -117,6 +118,6 @@ export const unfollowUser = async (req, res) => {
             return res.status(403).json({message: `You do not followed this user`});
         }
     }catch(err){
-        return res.status(500).json({error: 'Sorry, there is a server error'});
+        return res.status(500).json({error: serverErrorMessage});
     }
 }
