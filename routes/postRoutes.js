@@ -1,12 +1,14 @@
 import {Router} from 'express';
-import {createPost} from '../controllers/postControllers.js';
+import {createPost, updatePost} from '../controllers/postControllers.js';
 import {userAuth} from '../middlewares/authMiddleware.js';
+import {checkParamId} from '../middlewares/checkParamIdMiddleware.js'
 
 const router = Router();
 
 router.use('*', userAuth);
 router.post('/create', createPost);
-//update a post
+router.put('/update/:id',checkParamId, updatePost);
+
 // delete a post
 // like a post
 // get a post
