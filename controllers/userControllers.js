@@ -45,4 +45,24 @@ export const updateUserInfo = async (req, res) => {
         const errors = databaseErrorHandlingFunction(err);
         return res.status(500).json(errors);
     }
+};
+
+export const deleterUser = async(req, res) => {
+    const {id} = req.params;
+
+    try{
+      const user = await User.findById(id);
+      if (!user) return res.status(404).json({message: 'Sorry, account not found.'});
+      if(req.userId !== user._id.toString()) return res.status(401).json({message: 'You can only delete your own account.'});
+     await User.findByIdAndDelete(id, async (err) => {
+        if(!err){
+          return  await Info.deleteOne({userId: id});
+         
+        }
+     }).clone().exec();
+     res.cookie('jwt', '');
+      return res.status(200).json({message: 'The account was successfully deleted, you can create a new one at any time, see you.'})
+    }catch(err){
+        return res.status(500).json({error: 'Sorry, there is a server error.'})
+    }
 }
