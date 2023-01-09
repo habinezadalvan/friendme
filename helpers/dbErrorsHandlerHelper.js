@@ -1,3 +1,4 @@
+import {serverErrorMessage} from '../utils/responseMessagesUtils.js'
 export const databaseErrorHandlingFunction = (error) => {
     const errorMessages = {
         username :'',
@@ -21,6 +22,6 @@ export const databaseErrorHandlingFunction = (error) => {
     }
     
     return Object.values(errorMessages).every(value => value == '') 
-    ? {error: 'Sorry, there is a server error'}
+    ? {error: serverErrorMessage}
     : errorMessages;
 }
