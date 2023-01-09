@@ -76,3 +76,18 @@ export const getPost = async (req, res) => {
     }
 };
 
+export const getTimelinePosts = async (req, res) => {
+    const currentUserId = req.userId;
+    try {
+        const currentUser = await User.findById(currentUserId);
+        const currentUserPosts = await Post.find({userId: currentUserId});
+        const allFollowingsPosts = await Promise.all(
+            currentUser.followings.map(followingId => {
+                return Post.find({userId: followingId});
+            }));
+        return res.status(200).json(currentUserPosts.concat(...allFollowingsPosts));
+    }catch(err) {
+        return res.status(500).json({error: `Sorry, there is server error.`})
+    }
+}
+
