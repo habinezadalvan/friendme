@@ -46,4 +46,21 @@ export const deletePost = async (req, res) => {
         const errors = databaseErrorHandlingFunction(err);
         return res.status(500).json(errors);
     }
+};
+
+export const likeDislikePost = async (req, res) => {
+    const {id} = req.params;
+    try{
+        const post = await Post.findById(id);
+        if(!post ) return res.status(404).json({message: 'Sorry, post not found.'});
+        if(!post.likes.includes(req.userId)){
+           await post.updateOne({$push: {likes: req.userId}});
+           return res.status(200).json({message: 'Post has been liked'});
+        }else{
+            await post.updateOne({$pull: {likes: req.userId}});
+           return res.status(200).json({message: 'Post has been disliked'});
+        }
+    }catch(err){
+        return res.status(500).json({error: 'Sorry, there is a server error.'})
+    }
 }
