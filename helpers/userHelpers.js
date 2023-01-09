@@ -9,7 +9,6 @@ export const databaseErrorHandlingFunction = (error) => {
 
     if(error.message.includes('User validation failed:') || error.message.includes('Validation failed')){
         Object.values(error.errors).forEach(({properties}) => {
-            console.log( errorMessages[properties.path]);
             errorMessages[properties.path] = properties.message;
         });
     };
