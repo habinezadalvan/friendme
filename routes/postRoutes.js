@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {createPost, updatePost, deletePost, likeDislikePost} from '../controllers/postControllers.js';
+import {createPost, updatePost, deletePost, likeDislikePost, getPost} from '../controllers/postControllers.js';
 import {userAuth} from '../middlewares/authMiddleware.js';
 import {checkParamId} from '../middlewares/checkParamIdMiddleware.js'
 
@@ -10,10 +10,8 @@ router.post('/create', createPost);
 router.put('/update/:id',checkParamId, updatePost);
 router.delete('/delete/:id',checkParamId, deletePost);
 router.put('/:id',checkParamId, likeDislikePost);
+router.get('/:id',checkParamId, getPost);
 
-// delete a post
-// like a post
-// get a post
 // get timeline posts
 
 export default router;
