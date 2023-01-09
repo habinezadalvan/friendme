@@ -78,4 +78,25 @@ export const getUser = async (req, res) => {
     }catch(err){
         return res.status(500).json({error: 'Sorry, there is server error'});
     }
+};
+
+export const followUser = async (req, res) => {
+    const {id: userToFollowId} = req.params;
+
+    if(req.userId === userToFollowId) return res.status(403).json({message: `Sorry, you can not follow your self.`});
+    try{
+        const user = await User.findById(userToFollowId);
+        const currentUser = await User.findById(req.userId);
+        if(!user || !currentUser ) return res.status(404).json({message: `Sorry, user not found.`})
+        if(!user.followers.includes(req.userId)){
+            await user.updateOne({$push: {followers: req.userId}});
+            await currentUser.updateOne({$push: {followings: userToFollowId}});
+            return res.status(200).json({message: `User has been followed.`})
+        }else{
+            return res.status(403).json({message: `You have already followed this user`});
+        }
+    }catch(err){
+        return res.status(500).json({error: 'Sorry, there is a server error'});
+    }
+   
 }
