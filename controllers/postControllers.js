@@ -34,3 +34,16 @@ export const updatePost = async (req, res) => {
         return res.status(500).json(errors);
     }
 }
+export const deletePost = async (req, res) => {
+    const {id} = req.params;
+    try{
+        const post = await Post.findById(id);
+        if(!post ) return res.status(404).json({message: 'Sorry, post not found.'});
+        if(post.userId.toString() !== req.userId) return res.status(403).json({message: 'You can only delete your own post.'});
+        await post.deleteOne();
+        return res.status(200).json({message: 'Post was deleted.'})
+    }catch(err){
+        const errors = databaseErrorHandlingFunction(err);
+        return res.status(500).json(errors);
+    }
+}
