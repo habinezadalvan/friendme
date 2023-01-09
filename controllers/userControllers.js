@@ -1,9 +1,9 @@
 import moment from 'moment';
 import User from '../models/userModel.js';
-import Info from '../models/userInfo.js';
+import Info from '../models/userInfoModel.js';
 
 import {hashPassword} from '../utils/passwordUtils.js';
-import {databaseErrorHandlingFunction} from '../helpers/userHelpers.js';
+import {databaseErrorHandlingFunction} from '../helpers/dbErrorsHandlerHelper.js';
 
 
 export const updateUser = async (req, res) => {
