@@ -38,7 +38,7 @@ import {createToken} from '../helpers/createToken.js'
        }
     };
 
-    export const login = async (req, res) => {
+    export const logIn = async (req, res) => {
         const {password, username} = req.body;
         const userCridentials = {
             email: '',
@@ -57,4 +57,9 @@ import {createToken} from '../helpers/createToken.js'
            return res.status(400).json({loginErrorMessage: err.massage});
         }
     };
+
+    export const logOut = (req, res) => {
+        res.cookie('jwt', '', {maxAge: 1});
+        return res.status(200).json({message: `You are logged out.`});
+    }
 

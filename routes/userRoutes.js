@@ -5,10 +5,10 @@ import {checkParamId} from '../middlewares/checkParamIdMiddleware.js'
 
 const router = Router();
 
-// get a user
-router.get('/:id', checkParamId, getUser);
 
 router.use('*', userAuth); // Authenticates the routes bellow.
+// get a user
+router.get('/:id', checkParamId, getUser);
 // update a user
 router.put('/:id', checkParamId,updateUser);
 router.put('/info/update/:id', checkParamId,updateUserInfo);
