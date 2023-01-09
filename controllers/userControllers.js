@@ -83,7 +83,7 @@ export const getUser = async (req, res) => {
 export const followUser = async (req, res) => {
     const {id: userToFollowId} = req.params;
 
-    if(req.userId === userToFollowId) return res.status(403).json({message: `Sorry, you can not follow your self.`});
+    if(req.userId === userToFollowId) return res.status(403).json({message: `Sorry, you can not follow yourself.`});
     try{
         const user = await User.findById(userToFollowId);
         const currentUser = await User.findById(req.userId);
@@ -99,4 +99,24 @@ export const followUser = async (req, res) => {
         return res.status(500).json({error: 'Sorry, there is a server error'});
     }
    
+};
+
+export const unfollowUser = async (req, res) => {
+    const {id: userToUnfollowId} = req.params;
+
+    if(req.userId === userToUnfollowId) return res.status(403).json({message: `Sorry, you can not unfollow yourself.`});
+    try{
+        const user = await User.findById(userToUnfollowId);
+        const currentUser = await User.findById(req.userId);
+        if(!user || !currentUser ) return res.status(404).json({message: `Sorry, user not found.`})
+        if(user.followers.includes(req.userId)){
+            await user.updateOne({$pull: {followers: req.userId}});
+            await currentUser.updateOne({$pull: {followings: userToUnfollowId}});
+            return res.status(200).json({message: `You unfollowed the user.`})
+        }else{
+            return res.status(403).json({message: `You do not followed this user`});
+        }
+    }catch(err){
+        return res.status(500).json({error: 'Sorry, there is a server error'});
+    }
 }
