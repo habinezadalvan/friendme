@@ -90,5 +90,17 @@ export const getTimelinePosts = async (req, res) => {
     }catch(err) {
         return res.status(500).json({error: serverErrorMessage})
     }
+};
+
+export const userPosts = async (req, res) => {
+    const {id} = req.params;
+   try{
+        const posts = await Post.find({userId: id});
+        if(!posts) return res.status(404).json({message: _404_Message('post')});
+        return res.status(200).json(posts);
+   }catch(err){
+    return res.status(500).json({error: serverErrorMessage})
+   }
 }
+
 
