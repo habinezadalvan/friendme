@@ -25,11 +25,13 @@ import {createToken} from '../helpers/createToken.js'
             age: userAge,
         });
 
+
         if(user){
             const token = await createToken(user, maxAge);
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
+            const  {password, ...rest} = user._doc;
             await Info.create({userId: user._id});
-            return res.status(201).json({user});
+            return res.status(201).json({rest});
         }
 
        }catch(error) {
@@ -51,7 +53,6 @@ import {createToken} from '../helpers/createToken.js'
         try{
             const user = await User.login(userCridentials);
             const {password, ...rest} = user._doc;
-            console.log(rest);
             const token = await createToken(user, maxAge);
             res.cookie('jwt', token, {maxAge: maxAge * 1000, httpOnly: true});
             return res.status(200).json({rest});

@@ -5,7 +5,6 @@ import Info from '../models/userInfoModel.js';
 import {hashPassword} from '../utils/passwordUtils.js';
 import {databaseErrorHandlingFunction} from '../helpers/dbErrorsHandlerHelper.js';
 import {_404_Message, serverErrorMessage, forbidenMessage} from '../utils/responseMessagesUtils.js';
-import { set } from 'mongoose';
 
 
 export const updateUser = async (req, res) => {
@@ -25,9 +24,13 @@ export const updateUser = async (req, res) => {
    
     const user = await User.findByIdAndUpdate(id, {$set:req.body}, {new: true, runValidators: true});
 
-    return res.status(200).json(user);
+    if(user){
+    const {password, ...rest} = user._doc;
+    return res.status(200).json(rest);
+    }
 
    }catch(err) {
+ 
     const errors = databaseErrorHandlingFunction(err);
     return res.status(500).json(errors);
    }
@@ -143,15 +146,22 @@ export const searchUser = async (req, res ) => {
 
            const uniqueUsers = Array.from(usersSet).map(JSON.parse);
 
-           return res.status(200).json(uniqueUsers);
+           const allUsers = uniqueUsers.map(user => {
+            const {password, ...rest} = user;
+            return rest;
+           })
+        
+           return res.status(200).json(allUsers);
            
         }else{
-            return res.status(200).json(users);
+            const foundUsers = users.map(user => {
+                const {password, ...rest} = user;
+                return rest;
+            })
+            return res.status(200).json(foundUsers);
         }
-    
-        
+     
     }catch(err){
-        console.log(err);
         return res.status(500).json({message: serverErrorMessage});
     }
 }
