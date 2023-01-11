@@ -24,9 +24,13 @@ export const updateUser = async (req, res) => {
    
     const user = await User.findByIdAndUpdate(id, {$set:req.body}, {new: true, runValidators: true});
 
-    return res.status(200).json(user);
+    if(user){
+    const {password, ...rest} = user._doc;
+    return res.status(200).json(rest);
+    }
 
    }catch(err) {
+ 
     const errors = databaseErrorHandlingFunction(err);
     return res.status(500).json(errors);
    }
@@ -35,13 +39,8 @@ export const updateUser = async (req, res) => {
 
 export const updateUserInfo = async (req, res) => {
 
-    const {id} = req.params;
     try{
-        const userInfo = await Info.where('_id').equals(id.toString());
-    
-        if(!userInfo[0]) return res.status(404).json({message: _404_Message('user information')});
-        if(req.userId !== userInfo[0].userId.toString()) return res.status(403).json({message: forbidenMessage('update', 'information')});
-        const updatedInfo = await Info.findByIdAndUpdate(id, {$set: req.body}, {new: true, runValidators: true});
+        const updatedInfo = await Info.findOneAndUpdate({userId: req.userId}, {$set: req.body}, {new: true, runValidators: true});
         return res.status(200).json(updatedInfo);
     }catch(err){
         const errors = databaseErrorHandlingFunction(err);
@@ -119,5 +118,50 @@ export const unfollowUser = async (req, res) => {
         }
     }catch(err){
         return res.status(500).json({error: serverErrorMessage});
+    }
+};
+
+export const searchUser = async (req, res ) => {
+    const {key} = req.params;
+    try{
+        const users = await User.find({$or: [
+            {username: {$regex: key, $options: 'i'}}, 
+            {email: {$regex: key, $options: 'i'}},
+        ]});
+
+        const usersByInfo = await Info.find({
+           $or: [{firstName: {$regex: key, $options: 'i'}}, {lastName: {$regex: key, $options: 'i'}}]
+        });
+
+        if(!users && !usersByInfo) return res.status(404).json({message: _404_Message('user')});
+
+        if(usersByInfo){
+            const searchActualUsers = await Promise.all(usersByInfo.map(user => {
+                return User.findOne({_id: user.userId});
+            }));
+
+           const jsonObject = users.concat(...searchActualUsers).map(JSON.stringify);
+
+           const usersSet = new Set(jsonObject);
+
+           const uniqueUsers = Array.from(usersSet).map(JSON.parse);
+
+           const allUsers = uniqueUsers.map(user => {
+            const {password, ...rest} = user;
+            return rest;
+           })
+        
+           return res.status(200).json(allUsers);
+           
+        }else{
+            const foundUsers = users.map(user => {
+                const {password, ...rest} = user;
+                return rest;
+            })
+            return res.status(200).json(foundUsers);
+        }
+     
+    }catch(err){
+        return res.status(500).json({message: serverErrorMessage});
     }
 }
