@@ -39,8 +39,13 @@ export const updateUser = async (req, res) => {
 
 export const updateUserInfo = async (req, res) => {
 
+    const {id} = req.params;
     try{
-        const updatedInfo = await Info.findOneAndUpdate({userId: req.userId}, {$set: req.body}, {new: true, runValidators: true});
+        const userInfo = await Info.where('_id').equals(id.toString());
+    
+        if(!userInfo[0]) return res.status(404).json({message: _404_Message('user information')});
+        if(req.userId !== userInfo[0].userId.toString()) return res.status(403).json({message: forbidenMessage('update', 'information')});
+        const updatedInfo = await Info.findByIdAndUpdate(id, {$set: req.body}, {new: true, runValidators: true});
         return res.status(200).json(updatedInfo);
     }catch(err){
         const errors = databaseErrorHandlingFunction(err);

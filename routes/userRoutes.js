@@ -10,7 +10,7 @@ router.use('*', userAuth); // Authenticates the routes bellow.
 router.get('/search/:key', searchUser)
 router.get('/:id', checkParamId, getUser);
 router.put('/:id', checkParamId,updateUser);
-router.put('/info/update', updateUserInfo);
+router.put('/info/update/:id',checkParamId, updateUserInfo);
 router.put('/follow/:id', checkParamId, followUser);
 router.put('/unfollow/:id', checkParamId, unfollowUser);
 router.delete('/delete/:id', checkParamId,deleterUser);
