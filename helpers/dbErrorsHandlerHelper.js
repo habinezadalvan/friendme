@@ -17,7 +17,7 @@ export const databaseErrorHandlingFunction = (error) => {
     };
     if(error.code === 11000){
         Object.keys(error.keyValue).forEach(key => {
-            errorMessages[key] = `${error.keyValue[key]} is already in use.`
+            errorMessages[key] = `${key} is not available, choose new Username.`
         })
     }
     
