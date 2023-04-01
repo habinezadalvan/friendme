@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export const createToken = async (user, maxAge) => {
-    const token = await jwt.sign({id: user.id}, process.env.SECRET_KEY, {expiresIn: maxAge});
+export const createToken = async (id, maxAge) => {
+    const token = await jwt.sign({id}, process.env.SECRET_KEY, {expiresIn: maxAge});
     return token;
 }
